@@ -64,6 +64,7 @@ def select_player_ships(grid, grid_dict):
     
 def validate_ships(grid, grid_dict, player_ships):
     coordinates = list(player_ships.values())
+    # print(f'coordinates variable: {coordinates}')
 
     try:
         for x, coordinate in enumerate(coordinates, start=0):
@@ -92,29 +93,61 @@ def validate_ships(grid, grid_dict, player_ships):
                 if int(player_ships[player_ship][0]) + SHIP_SIZES[x] - 1 > grid and player_ships[player_ship][2] == 'H' or int(player_ships[player_ship][1]) + SHIP_SIZES[x] - 1 > grid and player_ships[player_ship][2] == 'V':
                     raise ValueError(f'\nThe {player_ship} that you placed is partially outside of the {grid}x{grid} grid.')
 
-        for grid_coordinates in grid_dict:
-            coordinates = grid_coordinates.split(' ')
-            for player_ship in player_ships:
-                
+        for grid_coordinates in grid_dict:  # Each iteration passes a key name from grid_dict to grid_coordinates. Each key name is a string, e.g. '1 1'
             
+            print(f'before split: {grid_coordinates}')
+            coordinates_comp = grid_coordinates.split(' ')  # creates list from current key name, e.g. ['1', '1'] (removes white space)
+            print(f'after split: {grid_coordinates}')            
+            
+            for x, coordinate in enumerate(coordinates, start=0):  # coordinates is a list of lists, so coordinate will be passed a list on each iteration.
+                if len(coordinate) == 3:  # if coordinate contains a H or V it will be a list of length 3.
+                    if coordinates_comp == coordinate[0:2]:  # compares key from grid_dict with slice of length 3 list, i.e. the slice omits the H or V.
+                        grid_dict[grid_coordinates] = 'occupied'  # sets the current key of grid_dict to 'occupied' from None.
+                        
+                        if coordinate[2] == 'H':  # If the third index of coordinate contains 'H'. 
+                            for y in range(0, SHIP_SIZES[x] - 1):
+                                coordinates_comp[0] = int(coordinates_comp[0]) + 1
+                                coordinates_comp[0] = str(coordinates_comp[0])
+                                print(coordinates_comp)
+                                coord_str = str(coordinates_comp[0] + ' ' + coordinates_comp[1])  # creates a string that is identical to a key in grid_dict. str cast necessary?
+                                print(coord_str)
+                                grid_dict[coord_str] = 'occupied'  # uses created string in coord_str to access a key of grid_dict, and then change its value.
+                                print(f'{coord_str}: {grid_dict[coord_str]}')          
+                        elif coordinate[2] == 'V':  # If the third index of coordinate contains 'V'.
+                            for y in range(0, SHIP_SIZES[x] - 1):
+                                coordinates_comp[1] = int(coordinates_comp[1]) + 1
+                                coordinates_comp[1] = str(coordinates_comp[1])
+                                print(coordinates_comp)
+                                coord_str = str(coordinates_comp[0] + ' ' + coordinates_comp[1])  # creates a string that is identical to a key in grid_dict.
+                                print(coord_str)
+                                grid_dict[coord_str] = 'occupied'  # uses created string in coord_str to access a key of grid_dict, and then change its value.                           
+                elif coordinates_comp == coordinate:  # runs if coordinate does not have a length of 3, which means it should have a length of 2 after previous validation.
+                        grid_dict[grid_coordinates] = 'occupied'  # sets the current key of grid_dict to 'occupied' from None. Only one coordinate necessary, because this ship has to be a submarine.
+                        print(f'Submarine: {grid_coordinates}: {grid_dict[grid_coordinates]}')      
+    
     except (ValueError, IndexError) as e:
         print(f'{e} Please place your ships again.\n')
         return False
 
     return True    
 
-def place_player_ships(grid, player_ships):
-    player_grid = SHEET.worksheet('player')
+# def place_player_ships(grid, player_ships):
+#     player_grid = SHEET.worksheet('player')
 
 def main():
     grid = set_grid_size()
     grid_dict = {f'{x} {y}': None for x in range(1, grid + 1) for y in range(1, grid + 1)}
-    player_ships = select_player_ships(grid, grid_dict)  
-    place_player_ships(grid, player_ships)
+    # for grid_coordinates in grid_dict:
+    #         print(grid_coordinates)   Prints 1 1 and then 1 2 on the next line, etc., i.e. prints the key names. No quotes, though. Are each set of numbers a string? See next line.
+    #         print(isinstance(grid_coordinates, str))   Returns True for each key, meaning every key is indeed a string, e.g. '1 1' (1 space 1).
+    # print(f'grid_dict variable: {grid_dict}')
+    player_ships = select_player_ships(grid, grid_dict) 
+    print(grid_dict)
+    # place_player_ships(grid, player_ships)
 
 print(f'Welcome to Battleships!\n')
 
-print(grid_dict)
+# 
 
 # for grid_coordinate in grid_dict:
 #     print(grid_coordinate) PRINTS 11
