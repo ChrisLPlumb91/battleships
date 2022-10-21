@@ -142,71 +142,73 @@ def validate_ships(grid, grid_dict, player_ships):
 
 def place_player_ships(grid, player_ships, grid_dict):
     player_grid = SHEET.worksheet('player')
-
-    occupied_squares = list(grid_dict.values())
-    grid_coordinates = list(grid_dict.keys())
-    # print(occupied_squares)
-
-    for x, player_ship in enumerate(player_ships, start=0):  # 7 loops - 1 for each ship.
-
-        for ind, y in enumerate(range(1, grid + 1), start=0):  # As many loops as there are squares in a single row or column of the grid, i.e. 10, 12, or 14. ind = 0-9 / 0-11 / 0-13, and y = 1-10 / 1-12 / 1-14.
+    row_values = list(grid_dict.values())
+    print(row_values)
+    row_list = []
+    
+    for x in range(grid):  # each iteration of this loop represents a row of the table. 0-9 (10 rows), 0-11 (12 rows), 0-13 (14 rows).
+        print
+        if grid == 10 and len(row_list) == 10 or grid == 12 and len(row_list) == 12 or grid == 14 and len(row_list) == 14:
             row_list = []
 
-            for z in range(grid):  # 0-9, 0-11, or 0-13
-                
-                # if z > grid - 1:   only iterates 10/12/14 times because of this break statement. 10/12/14 of these loops for every 1 loop of the 'ind, y' loop
-                #     break
+        for y in range(grid):  # each iteration of this loop represents a cell of the current row. 0-9 (10 cells), 0-11 (12 cells), 0-13 (14 cells).
+            # if x >= 1 and grid == 12 and len(row_list) == 12 and y % 2 != 0 or x >= 1 and grid == 14 and len(row_list) == 14 and y % 2 != 0:
+            #     print(row_list)
+            #     player_grid.append_row(row_list)
+            
+            if x == 0:
+                if row_values[y] == 'occupied by first Submarine' or row_values[y] == 'occupied by second Submarine':
+                    row_list.append(SHIP_INITIALS[0])
+                elif row_values[y] == 'occupied by first Destroyer' or row_values[y] == 'occupied by second Destroyer':
+                    row_list.append(SHIP_INITIALS[2])
+                elif row_values[y] == 'occupied by Cruiser':
+                    row_list.append(SHIP_INITIALS[4])
+                elif row_values[y] == 'occupied by Battleship':
+                    row_list.append(SHIP_INITIALS[5])
+                elif row_values[y] == 'occupied by Aircraft Carrier':
+                    row_list.append(SHIP_INITIALS[6])
+                else:
+                    row_list.append('')
+            elif x > 0:
+                str_x = str(x)
+                str_y = str(y)
+                int_xy = int(str_x + str_y)
 
-                if ind == 0:
-                    if occupied_squares[z] == 'occupied':  # effectively checks first ten keys of grid_dict to see if any of them are set to occupied...
-                        row_list.append(SHIP_INITIALS[x])  # ...and if any of them are, the letter that corresponds to the current player ship is appended to row_list
-                    else:
-                        row_list.append('')                          
-                
-                # elif y >= 10:   This is for when you want to check index 100 and onwards of occupied_squares. When ind is 9, y will be 10, so y is used in this block instead of ind. 
-                #     combined_str = str(y) + str(z) 
-                #     if occupied_squares[int(combined_str)] == 'occupied':
-                #         row_list.append(SHIP_INITIALS[x])
-                #     else:
-                #         row_list.append('')
-                
-                elif ind > 0 and grid == 10:  # This block is used to create double digit numbers to access the indices past 9 of occupied_squares. It only executes if ind is greater than 0 
-                    combined_str = str(ind) + str(z)  # creates a two digit number from two numeric strings. from 10 all the way up to 99
-                    if occupied_squares[int(combined_str)] == 'occupied':  # converts the combined numeric string to an int, and uses that int to access an index of occupied_squares.
-                        row_list.append(SHIP_INITIALS[x])
+                if grid == 12 and int_xy <= 11:
+                    continue
+                elif grid == 14 and int_xy <= 13:
+                    continue
+                else:
+                    if row_values[int_xy] == 'occupied by first Submarine' or row_values[int_xy] == 'occupied by second Submarine':
+                        row_list.append(SHIP_INITIALS[0])
+                    elif row_values[int_xy] == 'occupied by first Destroyer' or row_values[int_xy] == 'occupied by second Destroyer':
+                        row_list.append(SHIP_INITIALS[2])
+                    elif row_values[int_xy] == 'occupied by Cruiser':
+                        row_list.append(SHIP_INITIALS[4])
+                    elif row_values[int_xy] == 'occupied by Battleship':
+                        row_list.append(SHIP_INITIALS[5])
+                    elif row_values[int_xy] == 'occupied by Aircraft Carrier':
+                        row_list.append(SHIP_INITIALS[6])
                     else:
                         row_list.append('')
-                
-                elif ind > 0 and grid == 12:  # This block is used to create double digit numbers to access the indices past 9 of occupied_squares. It only executes if ind is greater than 0 
-                    if z > 9:
-                        break
-                    elif z > 1:
-                        combined_str = str(ind) + str(z)  # creates a two digit number from two numeric strings. from 10 all the way up to 99.
-                        if occupied_squares[int(combined_str)] == 'occupied':  # converts the combined numeric string to an int, and uses that int to access an index of occupied_squares.
-                            row_list.append(SHIP_INITIALS[x])
-                        else:
-                            row_list.append('')
-                    else:
-                        continue
-                
-                elif ind > 0 and grid == 14:  # This block is used to create double digit numbers to access the indices past 9 of occupied_squares. It only executes if ind is greater than 0 
-                    if z > 9:
-                        break
-                    elif z > 3:
-                        combined_str = str(ind) + str(z)  # creates a two digit number from two numeric strings. from 10 all the way up to 99.                  
-                        if occupied_squares[int(combined_str)] == 'occupied':  # converts the combined numeric string to an int, and uses that int to access an index of occupied_squares.
-                            row_list.append(SHIP_INITIALS[x])
-                        else:
-                            row_list.append('')
-                    else:
-                        continue
-                
+     
+            if x >= 1 and grid == 12 and len(row_list) == 12 and y % 2 != 0 or x >= 1 and grid == 14 and len(row_list) == 14 and y % 2 != 0:
+                print(row_list)
+                player_grid.append_row(row_list)
+                row_list = []
+            
+            if grid == 12 and x >= 1 and y == 9 or grid == 14 and x >= 1 and y == 9:
+                break
+
+        if grid == 10 and len(row_list) == 10:
+            print(row_list)
+            player_grid.append_row(row_list)
+        elif grid == 12 and x == 0 or grid == 14 and x == 0:
             print(row_list)
             player_grid.append_row(row_list)
 
-        # print(occupied_squares)
-        print(f'Adding your {player_ship} to the grid...')
-        sleep(3)
+        # print(f'Adding your {player_ship} to the grid...')
+        # sleep(3)
 
     print('Spreadsheet populated with player ships.')
     
@@ -215,7 +217,7 @@ def main():
     grid = set_grid_size()
     grid_dict = {f'{x} {y}': 'empty' for y in range(1, grid + 1) for x in range(1, grid + 1)}
     player_ships = select_player_ships(grid, grid_dict)
-    # place_player_ships(grid, player_ships, grid_dict)
+    place_player_ships(grid, player_ships, grid_dict)
 
 
 print(f'Welcome to Battleships!\n')
