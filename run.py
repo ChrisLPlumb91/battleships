@@ -143,19 +143,19 @@ def validate_ships(grid, grid_dict, player_ships):
 def place_player_ships(grid, player_ships, grid_dict):
     player_grid = SHEET.worksheet('player')
     row_values = list(grid_dict.values())
-    print(row_values)
     row_list = []
+    overflow = 0
+
+    if grid == 12:
+        overflow = 3
+    elif grid == 14:
+        overflow = 6
     
-    for x in range(grid):  # each iteration of this loop represents a row of the table. 0-9 (10 rows), 0-11 (12 rows), 0-13 (14 rows).
-        print
+    for x in range(grid + overflow):
         if grid == 10 and len(row_list) == 10 or grid == 12 and len(row_list) == 12 or grid == 14 and len(row_list) == 14:
             row_list = []
 
-        for y in range(grid):  # each iteration of this loop represents a cell of the current row. 0-9 (10 cells), 0-11 (12 cells), 0-13 (14 cells).
-            # if x >= 1 and grid == 12 and len(row_list) == 12 and y % 2 != 0 or x >= 1 and grid == 14 and len(row_list) == 14 and y % 2 != 0:
-            #     print(row_list)
-            #     player_grid.append_row(row_list)
-            
+        for y in range(grid):          
             if x == 0:
                 if row_values[y] == 'occupied by first Submarine' or row_values[y] == 'occupied by second Submarine':
                     row_list.append(SHIP_INITIALS[0])
@@ -174,9 +174,9 @@ def place_player_ships(grid, player_ships, grid_dict):
                 str_y = str(y)
                 int_xy = int(str_x + str_y)
 
-                if grid == 12 and int_xy <= 11:
+                if grid == 12 and int_xy <= 11 or grid == 12 and int_xy > 143:
                     continue
-                elif grid == 14 and int_xy <= 13:
+                elif grid == 14 and int_xy <= 13 or grid == 14 and int_xy > 195:
                     continue
                 else:
                     if row_values[int_xy] == 'occupied by first Submarine' or row_values[int_xy] == 'occupied by second Submarine':
@@ -191,9 +191,10 @@ def place_player_ships(grid, player_ships, grid_dict):
                         row_list.append(SHIP_INITIALS[6])
                     else:
                         row_list.append('')
-     
+
+    
             if x >= 1 and grid == 12 and len(row_list) == 12 and y % 2 != 0 or x >= 1 and grid == 14 and len(row_list) == 14 and y % 2 != 0:
-                print(row_list)
+                # print(row_list)
                 player_grid.append_row(row_list)
                 row_list = []
             
@@ -201,16 +202,13 @@ def place_player_ships(grid, player_ships, grid_dict):
                 break
 
         if grid == 10 and len(row_list) == 10:
-            print(row_list)
+            # print(row_list)
             player_grid.append_row(row_list)
         elif grid == 12 and x == 0 or grid == 14 and x == 0:
-            print(row_list)
-            player_grid.append_row(row_list)
-
-        # print(f'Adding your {player_ship} to the grid...')
-        # sleep(3)
-
-    print('Spreadsheet populated with player ships.')
+            # print(row_list)
+            player_grid.append_row(row_list)  
+    
+    print(f'Player spreadsheet populated with player ships.\n')
     
 
 def main():
