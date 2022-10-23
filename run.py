@@ -53,13 +53,13 @@ def select_player_ships(grid, grid_dict):
         print('For the remaining five ships, you must also enter either H or V, for horizontal or vertical, e.g. 2 10 V')
         print(f'(Keep in mind that you have selected a {grid}x{grid} grid, which means that numbers greater than {grid} will not be accepted)\n')
 
-        player_ships['first Submarine'] = input('Please position your first Submarine (occupies 1 square): ').split(' ')
-        player_ships['second Submarine'] = input('Please position your second Submarine (occupies 1 square): ').split(' ')
-        player_ships['first Destroyer'] = input('Please position your first Destroyer (occupies 2 squares): ').upper().split(' ')
-        player_ships['second Destroyer'] = input('Please position your second Destroyer (occupies 2 squares): ').upper().split(' ')
-        player_ships['Cruiser'] = input('Please position your Cruiser (occupies 3 squares): ').upper().split(' ')
-        player_ships['Battleship'] = input('Please position your Battleship (occupies 4 squares): ').upper().split(' ')
-        player_ships['Aircraft Carrier'] = input('Please position your Aircraft Carrier (occupies 5 squares): ').upper().split(' ')
+        player_ships['first Submarine'] = input(f'Please position your first Submarine (occupies 1 square):\n').split(' ')
+        player_ships['second Submarine'] = input(f'Please position your second Submarine (occupies 1 square):\n').split(' ')
+        player_ships['first Destroyer'] = input(f'Please position your first Destroyer (occupies 2 squares):\n').upper().split(' ')
+        player_ships['second Destroyer'] = input(f'Please position your second Destroyer (occupies 2 squares):\n').upper().split(' ')
+        player_ships['Cruiser'] = input(f'Please position your Cruiser (occupies 3 squares):\n').upper().split(' ')
+        player_ships['Battleship'] = input(f'Please position your Battleship (occupies 4 squares):\n').upper().split(' ')
+        player_ships['Aircraft Carrier'] = input(f'Please position your Aircraft Carrier (occupies 5 squares):\n').upper().split(' ')
 
         if validate_ships(grid, grid_dict, player_ships):
             print(f'\nShips selected.\n')
