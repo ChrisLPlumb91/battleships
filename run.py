@@ -17,6 +17,8 @@ SHEET = GSPREAD_CLIENT.open('Battleships')
 SHIP_SIZES = [1, 1, 2, 2, 3, 4, 5]
 SHIP_INITIALS = ['S', 'S', 'D', 'D', 'C', 'B', 'A']
 
+grid_dict_cpu = {}
+
 
 def set_grid_size():
     while True:
@@ -65,7 +67,7 @@ def select_player_ships(grid, grid_dict_player):
         player_ships['Aircraft Carrier'] = input(f'Please position your Aircraft Carrier (occupies 5 squares):\n').upper().split(' ')
 
         if validate_player_ships(grid, grid_dict_player, player_ships):
-            print(f'\nShips selected.')
+            print(f'\nPositioning your ships. Please wait...')
             break
 
     return player_ships
@@ -244,9 +246,10 @@ def place_player_ships(grid, player_ships, grid_dict_player):
     print(f'Your spreadsheet has been populated with your ships! Take a look!.\n')
 
 
-def select_cpu_ships(grid, grid_dict_cpu, player_ships):
+def select_cpu_ships(grid, player_ships):
     cpu_ships = {}
     cpu_ship_names = list(player_ships.keys())
+    global grid_dict_cpu
 
     while True:
         for x, cpu_ship in enumerate(cpu_ship_names, start=0):
@@ -271,15 +274,16 @@ def select_cpu_ships(grid, grid_dict_cpu, player_ships):
                 other_coordinates_string.append(random.choice(['H', 'V']))
                 cpu_ships[cpu_ship] = other_coordinates_string
 
-        if validate_cpu_ships(grid, grid_dict_cpu, cpu_ships):
-            print(f'CPU ships selected.\n')
+        if validate_cpu_ships(grid, cpu_ships):
+            print(f"You sense that the CPU's ships have taken up position behind the colossal wall before you...\n")
             break
 
     return cpu_ships
     
 
-def validate_cpu_ships(grid, grid_dict_cpu, cpu_ships):
+def validate_cpu_ships(grid, cpu_ships):
         
+    global grid_dict_cpu
     cpu_ships_coordinates = list(cpu_ships.values())
 
     while True:
@@ -340,20 +344,21 @@ def validate_cpu_ships(grid, grid_dict_cpu, cpu_ships):
             break
         else:
             return False
-
     return True
 
-def start_game(grid, player_ships, cpu_ships, grid_dict_player, grid_dict_cpu):
-    print(f'\nStarting game!\n')
+def start_game(grid, player_ships, cpu_ships, grid_dict_player):
+    print(f'\nMan the poop deck! War has returned to the high seas!\n')
 
     player_grid = SHEET.worksheet('player')
+    cpu_grid = SHEET.worksheet('cpu')
+    global grid_dict_cpu
 
     player_hits = 0
     cpu_hits = 0
 
     while player_hits < 18 or cpu_hits < 18:
         while True:
-            print(f'Try to guess where your opponent has placed their ships!')
+            print(f'Try to guess where your opponent has placed their ships! (any hits will appear on the CPU spreadsheet!)')
             player_guess = input(f'Enter two numbers separated by a space and then press enter (neither number should be greater than {grid}):\n').split(' ')
 
             if validate_guess(player_guess, grid):
@@ -363,14 +368,23 @@ def start_game(grid, player_ships, cpu_ships, grid_dict_player, grid_dict_cpu):
         
         if 'occupied' in grid_dict_cpu[player_guess_str]:
             hit_ship_str = grid_dict_cpu[player_guess_str][12:len(grid_dict_cpu[player_guess_str]) + 1]
-            print(f'You hit a {hit_ship_str}!\n')
+            print(f"\nYou hit the CPU's {hit_ship_str}!\n")
+
+            if 'first' in hit_ship_str:
+                ship_initial = hit_ship_str[6:7].upper()
+            elif 'second' in hit_ship_str:
+                ship_initial = hit_ship_str[7:8].upper()
+            else:
+                ship_initial = hit_ship_str[0].upper()
+
+            cpu_grid.update_cell(player_guess[1], player_guess[0], ship_initial)          
 
             grid_dict_cpu[player_guess_str] = 'Hit!'
             cpu_hits += 1
         elif grid_dict_cpu[player_guess_str] == 'Hit!':
-            print('Nothing but wreckage, there!')
+            print(f'Nothing but wreckage, there!\n')
         else:
-            print(f'Miss!\n')
+            print(f'\nMiss!\n')
 
         if cpu_hits >= 18:
             break
@@ -386,23 +400,26 @@ def start_game(grid, player_ships, cpu_ships, grid_dict_player, grid_dict_cpu):
                 random_coordinate_2 = random.randrange(grid + 1)
             
             cpu_guess_str = str(random_coordinate_1) + ' ' + str( random_coordinate_2)
+            cpu_guess_list = [random_coordinate_1, random_coordinate_2]
 
             if 'occupied' in grid_dict_player[cpu_guess_str]:
-                hit_ship_str = grid_dict_player[cpu_guess_str][12:len(grid_dict_player[cpu_guess_str]) + 1]  # May cut one letter off without + 1, but + 1 may cause IndexError.
-                print(f'The cpu guessed {cpu_guess_str} and hit your {hit_ship_str}!\n')
+                hit_ship_str = grid_dict_player[cpu_guess_str][12:len(grid_dict_player[cpu_guess_str]) + 1]
+                print(f'The CPU guessed {cpu_guess_str} and hit your {hit_ship_str}!\n')
 
                 grid_dict_player[cpu_guess_str] = 'Hit!'
                 player_hits += 1
-                break
+
+                player_grid.update_cell(random_coordinate_2, random_coordinate_1, 'X')
+                break              
             elif grid_dict_player[cpu_guess_str] == 'Hit!':
-                print(f'The cpu guessed {cpu_guess_str} and blasted the wreckage of one of your ships!')
+                print(f'The CPU guessed {cpu_guess_str} and blasted the wreckage of one of your ships!\n')
                 break
             else:
-                print(f'The cpu guessed {cpu_guess_str}, but missed!\n')
+                print(f'The CPU guessed {cpu_guess_str}, but missed!\n')
                 break
     
     if cpu_hits >= 18:
-        print('You are victorious!')
+        print(f'YOU ARE VICTORIOUS!\n')
     elif player_hits >=18:
         print('The CPU has scuppered your entire fleet! You lose!')
             
@@ -429,6 +446,8 @@ def validate_guess(player_guess, grid):
 
 
 def main():
+    global grid_dict_cpu
+    
     grid = set_grid_size()
 
     grid_dict_player = {f'{x} {y}': 'empty' for y in range(1, grid + 1) for x in range(1, grid + 1)}
@@ -436,9 +455,9 @@ def main():
     place_player_ships(grid, player_ships, grid_dict_player)
 
     grid_dict_cpu = {f'{x} {y}': 'empty' for y in range(1, grid + 1) for x in range(1, grid + 1)}
-    cpu_ships = select_cpu_ships(grid, grid_dict_cpu, player_ships)
+    cpu_ships = select_cpu_ships(grid, player_ships)
 
-    start_game(grid, player_ships, cpu_ships, grid_dict_player, grid_dict_cpu)
+    start_game(grid, player_ships, cpu_ships, grid_dict_player)
 
 
 print(f'\nWelcome to Battleships!\n')
