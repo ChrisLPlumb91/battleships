@@ -353,6 +353,22 @@ def start_game(grid, player_ships, cpu_ships, grid_dict_player):
     cpu_grid = SHEET.worksheet('cpu')
     global grid_dict_cpu
 
+    hit_dict_player = {}
+    hit_dict_cpu = {}
+    
+    for x, player_ship in enumerate(player_ships, start=0):
+        hit_dict_player[player_ship] = []
+        for y in range(SHIP_SIZES[x]):
+            hit_dict_player[player_ship].append('O')
+    
+    for x, cpu_ship in enumerate(cpu_ships, start=0):
+        hit_dict_cpu[cpu_ship] = []
+        for y in range(SHIP_SIZES[x]):
+            hit_dict_cpu[cpu_ship].append('O')
+
+    print(hit_dict_player)
+    print(hit_dict_cpu)
+
     player_hits = 0
     cpu_hits = 0
 
@@ -368,7 +384,13 @@ def start_game(grid, player_ships, cpu_ships, grid_dict_player):
         
         if 'occupied' in grid_dict_cpu[player_guess_str]:
             hit_ship_str = grid_dict_cpu[player_guess_str][12:len(grid_dict_cpu[player_guess_str]) + 1]
-            print(f"\nYou hit the CPU's {hit_ship_str}!\n")
+            
+            if len(hit_dict_cpu[hit_ship_str]) >= 2:
+                hit_dict_cpu[hit_ship_str].pop()
+                print(f"\nYou hit the CPU's {hit_ship_str}!\n")
+            elif len(hit_dict_cpu[hit_ship_str]) == 1:
+                hit_dict_cpu[hit_ship_str].pop()
+                print(f"\nYou sunk the CPU's {hit_ship_str}!\n")
 
             if 'first' in hit_ship_str:
                 ship_initial = hit_ship_str[6:7].upper()
@@ -404,8 +426,14 @@ def start_game(grid, player_ships, cpu_ships, grid_dict_player):
 
             if 'occupied' in grid_dict_player[cpu_guess_str]:
                 hit_ship_str = grid_dict_player[cpu_guess_str][12:len(grid_dict_player[cpu_guess_str]) + 1]
-                print(f'The CPU guessed {cpu_guess_str} and hit your {hit_ship_str}!\n')
 
+                if len(hit_dict_player[hit_ship_str]) >= 2:
+                    hit_dict_player[hit_ship_str].pop()
+                    print(f'The CPU guessed {cpu_guess_str} and hit your {hit_ship_str}!\n')
+                elif len(hit_dict_player[hit_ship_str]) == 1:
+                    hit_dict_player[hit_ship_str].pop()
+                    print(f'The CPU guessed {cpu_guess_str} and sunk your {hit_ship_str}!\n')
+                    
                 grid_dict_player[cpu_guess_str] = 'Hit!'
                 player_hits += 1
 
@@ -420,8 +448,15 @@ def start_game(grid, player_ships, cpu_ships, grid_dict_player):
     
     if cpu_hits >= 18:
         print(f'YOU ARE VICTORIOUS!\n')
+        if player_hits == 0:
+            print(f'FLAWLESS VICTORY!!\n')
+        elif player_hits > 0:
+            print(f'...but at what cost? The CPU landed {player_hits} on your fleet...\n')
     elif player_hits >=18:
         print('The CPU has scuppered your entire fleet! You lose!')
+
+    player_grid.clear()
+    cpu_grid.clear()
             
 
 def validate_guess(player_guess, grid):
@@ -438,6 +473,9 @@ def validate_guess(player_guess, grid):
             raise ValueError('The coordinates you provided contained an alphabetic character where a number was expected.')
         elif int(player_guess[0]) > grid or int(player_guess[1]) > grid:
             raise ValueError(f'The coordinates you provided lie outside of the {grid}x{grid} grid.')       
+        elif int(player_guess[0]) <= 0 or int(player_guess[1]) <= 0:
+            raise ValueError(f'There is no 0 coordinate on the grid.')
+
         else:
             return True
     except ValueError as e:
@@ -446,18 +484,35 @@ def validate_guess(player_guess, grid):
 
 
 def main():
-    global grid_dict_cpu
+    continue_game = 'Y'
     
-    grid = set_grid_size()
+    while continue_game == 'Y':
+        global grid_dict_cpu
+    
+        grid = set_grid_size()
 
-    grid_dict_player = {f'{x} {y}': 'empty' for y in range(1, grid + 1) for x in range(1, grid + 1)}
-    player_ships = select_player_ships(grid, grid_dict_player)
-    place_player_ships(grid, player_ships, grid_dict_player)
+        grid_dict_player = {f'{x} {y}': 'empty' for y in range(1, grid + 1) for x in range(1, grid + 1)}
+        player_ships = select_player_ships(grid, grid_dict_player)
+        place_player_ships(grid, player_ships, grid_dict_player)
 
-    grid_dict_cpu = {f'{x} {y}': 'empty' for y in range(1, grid + 1) for x in range(1, grid + 1)}
-    cpu_ships = select_cpu_ships(grid, player_ships)
+        grid_dict_cpu = {f'{x} {y}': 'empty' for y in range(1, grid + 1) for x in range(1, grid + 1)}
+        cpu_ships = select_cpu_ships(grid, player_ships)
 
-    start_game(grid, player_ships, cpu_ships, grid_dict_player)
+        start_game(grid, player_ships, cpu_ships, grid_dict_player)
+
+        while True:
+            continue_game = input(f'Would you like to play again? (enter Y or N):\n').upper()
+
+            if continue_game == 'Y':
+                print('')
+                break
+            elif continue_game == 'N':
+                print(f'\nThanks for playing!\n')
+                break
+            else:
+                print(f'Please enter either Y or N.\n')
+
+    exit()
 
 
 print(f'\nWelcome to Battleships!\n')
