@@ -294,6 +294,8 @@ def place_player_ships(grid, player_ships, grid_dict_player):
     of coordinates and ships created previously.
     """
     player_grid = SHEET.worksheet('player')
+    player_grid.clear()
+
     row_values = list(grid_dict_player.values())
     row_list = []
     overflow = 0
@@ -320,7 +322,7 @@ def place_player_ships(grid, player_ships, grid_dict_player):
                 elif row_values[y] == 'occupied by Aircraft Carrier':
                     row_list.append(SHIP_INITIALS[6])
                 else:
-                    row_list.append('')
+                    row_list.append('~')
             elif x > 0:
                 str_x = str(x)
                 str_y = str(y)
@@ -342,7 +344,7 @@ def place_player_ships(grid, player_ships, grid_dict_player):
                     elif row_values[int_xy] == 'occupied by Aircraft Carrier':
                         row_list.append(SHIP_INITIALS[6])
                     else:
-                        row_list.append('')
+                        row_list.append('~')
 
     
             if x >= 1 and grid == 12 and len(row_list) == 12 and y % 2 != 0 or x >= 1 and grid == 14 and len(row_list) == 14 and y % 2 != 0:
@@ -373,6 +375,9 @@ def select_cpu_ships(grid, player_ships):
     cpu_ships = {}
     cpu_ship_names = list(player_ships.keys())
     global grid_dict_cpu
+    
+    cpu_grid = SHEET.worksheet('cpu')
+    cpu_grid.clear()
 
     while True:
         for x, cpu_ship in enumerate(cpu_ship_names, start=0):
@@ -511,6 +516,12 @@ def start_game(grid, player_ships, cpu_ships, grid_dict_player):
 
     hit_dict_player = {}
     hit_dict_cpu = {}
+
+    for x in range(grid):
+        cpu_grid_sea = []
+        for y in range(grid):
+            cpu_grid_sea.append('~')
+        cpu_grid.append_row(cpu_grid_sea)
     
     for x, player_ship in enumerate(player_ships, start=0):
         hit_dict_player[player_ship] = []
