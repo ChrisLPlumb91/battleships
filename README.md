@@ -124,8 +124,10 @@ The process followed in order to deploy this project to Heroku was as follows:
     <li>Next, while still in the Settings menu, I scrolled down to Buildpacks. Here, I installed both Python and node.js, making sure that Python was at the top of the list.</li>
     <li>Finally, in the Deploy section, I selected GitHub, and then searched for the repository for this project. When I found it, I clicked Connect, and then Deploy Branch (manual deploy).</li>
 </ol>
-
-
+ 
+ Live links to this project: 
+- Program: https://battleships-ci-2022-23.herokuapp.com/
+- Spreadsheet: https://docs.google.com/spreadsheets/d/1Vrt-P9ZnOsd72kd0d1Suqn6pB__ju0vFz6W6xhLOst8/edit?usp=sharing
 <hr>
 
 ## Credits
