@@ -35,25 +35,49 @@ It is intended to be a fun, simple diversion that is lightly strategic, much lik
 At the game's outset, the player is given a choice of three square grid sizes - 10x10, 12x12, and 14x14. In the interest of simplicity, I chose not to add any more options beyond these three, not to mention that trying to find ships in a grid bigger than 14x14 would be very tedious. The player's input is validated so that any attempts to enter other sizes will
 be prevented.
 
+<img src="assets/images/grid-selection-screenshot.png" alt="A screenshot of the player selecting a grid size.">
+
 ### Ship positioning
 
 Once the player has chosen a grid size, they must position each of their ships. Again, to keep things simple, and because the ships in <em>Battleships</em> are traditionally of fixed size and shape, the player is only asked to provide a single pair of x and y coordinates. These coordinates serve as the origin point of each ship.
+
+<img src="assets/images/ship-selection-screenshot.png" alt="A screenshot of the player positioning their ships.">
 
 With the exception of the Submarines (which only occupy a single square on the grid), the player must provided one of two letters to specify a ship's orientation on the grid. In <em>Battleships</em>, ships can either be vertical (parallel to the y axis), or horizontal (parallel to the x axis), so the player need only provide either the letter H or the letter V in addition to their coordinates of choice. Vertically-placed ships extend downwards from the origin coordinates, and horizontally-placed ships extend to the right.
 
 Generally speaking, all of the above is designed so that simple input generates a fully playable game in a split second.
 
+
+
 ### CPU battle
 
-After the player has made their choices, the CPU does the same, and then the game itself begins. During this phase, the player is prompted to enter 2 numbers to serve as coordinates on the CPU's grid. If the player lands a hit on one of the CPU's ships, the first letter of that ship's name appears on the 'cpu' sheet of a spreadsheet linked to the game. This way, the player can get a sense of where next to target at a glance.
+After the player has made their choices, The 'player' sheet in said spreadsheet is fully populated with the player's ships according to how they chose to place them at the beginning (The CPU does the same, but their spreadsheet is not populated, for obvious reasons). 
 
-The 'player' sheet in said spreadsheet is fully populated with the player's ships according to how they chose to place them at the beginning. Each ship is represented by an initial letter (e.g. 'S' for submarine), and if the CPU lands a hit, the corresponding letter will be changed to an 'X'.
+<img src="assets/images/player-grid-spreadsheet-screenshot.png" alt="A screenshot of the player's spreadsheet after they have positioned their ships.">
+
+Then, the game itself begins. During this phase, the player is prompted to enter 2 numbers to serve as coordinates on the CPU's grid. If the player lands a hit on one of the CPU's ships, the first letter of that ship's name appears on the 'cpu' sheet of a spreadsheet linked to the game. This way, the player can get a sense of where next to target at a glance.
+
+<img src="assets/images/player-lands-hit-screenshot.png" alt="A screenshot of the player landing a hit in the terminal.">
+
+<img src="assets/images/cpu-spreadsheet-ship-hit-screenshot.png" alt="A screenshot of the CPU's spreadsheet after the player lands a hit.">
+
+Each ship is represented by an initial letter (e.g. 'S' for submarine), and if the CPU lands a hit, the corresponding letter will be changed to an 'X'.
+
+<img src="assets/images/cpu-lands-hit-screenshot.png" alt="A screenshot of the CPU landing a hit in the terminal.">
+
+<img src="assets/images/player-spreadsheet-ship-hit-screenshot.png" alt="A screenshot of the player's spreadsheet after the CPU lands a hit.">
 
 The game phase respects the player's time - it immediately and quickly responds to the player's input.
 
 ### Play again / Exit game
 
-Once a victor has been declared, the player is given the option to play again. If they choose not to, the game will close. Also, at the beginning of the game, there is an opportunity for the player to quit. They can do this by entering 0 instead of 10, 12, or 14.
+Once a victor has been declared, the player is given the option to play again. If they choose not to, the game will close.
+
+<img src="assets/images/victory-and-play-again-screenshot.png" alt="A screenshot of the player winning and being asked if they want to play again.">
+
+Also, at the beginning of the game, there is an opportunity for the player to quit. They can do this by entering 0 instead of 10, 12, or 14.
+
+<img src="assets/images/quit-at-beginning-screenshot.png" alt="A screenshot of the player attempting to quit at the beginning of the game.">
 
 ### Features yet to be implemented
 
@@ -61,15 +85,19 @@ Once a victor has been declared, the player is given the option to play again. I
 
 If I were able to write network code, I would like to add a 2-player mode to the program. It would be selectable from a menu at the beginning, and would again use the spreadsheets. However, each player would have a different copy or instance of the spreadsheet to prevent them from seeing the positions of one another's ships. Other than this, the spreadsheets would behave in the same way as in the CPU mode - with hits dealt to the opponent gradually populating the 'opponent' spreadsheet, and hits dealt to the player inserting Xs into the 'player spreadsheet.
 
-### CPU AI / harder difficulty mode
+### CPU AI / harder difficulty modes
 
-I would like to implement basic AI for the CPU at some point. What I had in mind was for the CPU, if it lands a hit, to target one of the 4 squares adjacent to the one it hit. If it missed despite this, it would return to picking random squares all over the board.
+I would like to implement basic AI for the CPU at some point. What I had in mind was for the CPU, if it lands a hit, to randomly target one of the 4 squares adjacent to the one it hit. If it missed despite this, it would return to picking random squares all over the board.
 
 I thought that rather than make this the default behaviour of the CPU, I could make it a feature of a "hard mode" that the player could select at the beginning.
 
+An even harder mode is also possible - one in which, if the CPU hits the second square of a ship whose length is 3 squares or more, it will move to the next square, rather than randomly choosing from the other 2 adjacent squares. A harder mode still could omit the names of the ships hit by the player.
+
+I also considered a nightmare mode in which the CPU's ships move after 2-3 rounds.
+
 ### GUI
 
-While it is possible to create a sense of tension and excitement with text, it is easier to do this audiovisually. Moreover, terminal interfaces are quite boring to look at. The game is supposed to be fun and simple, and I think a nice GUI with graphics for the grid and the ships would increase the fun factor, and it needn't decrease the simplicity. In fact, sound and audio could make the game even more intuitive.
+While it is possible to create a sense of tension and excitement with text, it is easier to do this audiovisually. Moreover, terminal interfaces are very uninteresting to look at. The game is supposed to be fun and simple, and I think a nice GUI with graphics for the grid and the ships would increase the fun factor, and it needn't decrease the simplicity. In fact, sound and audio could make the game even more intuitive.
 
 <hr>
 
@@ -97,7 +125,7 @@ The process followed in order to deploy this project to Heroku was as follows:
     <li>Finally, in the Deploy section, I selected GitHub, and then searched for the repository for this project. When I found it, I clicked Connect, and then Deploy Branch (manual deploy).</li>
 </ol>
 
-Live link to this project: 
+
 <hr>
 
 ## Credits

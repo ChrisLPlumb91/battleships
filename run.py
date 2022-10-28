@@ -49,7 +49,7 @@ def set_grid_size():
                 exit_game()
 
         if validate_grid(grid):
-            print(f'{grid}x{grid} grid selected.\n')
+            print(f'\n{grid}x{grid} grid selected.\n')
             break
 
     return grid
@@ -107,10 +107,10 @@ def select_player_ships(grid, grid_dict_player):
     player_ships = {}
 
     while True:
-        print(f'\nYou will now be asked to place each one of your ships.\n\n')
+        print(f'\nYou will now be asked to place each one of your ships.\n')
         print('For the first two ships, you must enter two numbers, separated by a space, to serve as x and y coordinates, e.g. 2 10')
         print('For the remaining five ships, you must also enter either H or V, for horizontal or vertical, e.g. 2 10 V')
-        print(f'(Keep in mind that you have selected a {grid}1 x{grid} grid, which means that numbers greater than {grid} will not be accepted)\n')
+        print(f'(Keep in mind that you have selected a {grid}x{grid} grid, which means that numbers greater than {grid} will not be accepted)\n')
 
         while True:
             x = 2
