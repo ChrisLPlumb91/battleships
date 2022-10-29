@@ -43,7 +43,9 @@ Once the player has chosen a grid size, they must position each of their ships. 
 
 <img src="assets/images/ship-selection-screenshot.png" alt="A screenshot of the player positioning their ships.">
 
-With the exception of the Submarines (which only occupy a single square on the grid), the player must provided one of two letters to specify a ship's orientation on the grid. In <em>Battleships</em>, ships can either be vertical (parallel to the y axis), or horizontal (parallel to the x axis), so the player need only provide either the letter H or the letter V in addition to their coordinates of choice. Vertically-placed ships extend downwards from the origin coordinates, and horizontally-placed ships extend to the right.
+With the exception of the Submarines (which only occupy a single square on the grid), the player must provided one of two letters to specify a ship's orientation on the grid. In <em>Battleships</em>, ships can either be vertical (parallel to the y axis), or horizontal (parallel to the x axis), so the player must provide either the letter H or the letter V in addition to their coordinates of choice. Vertically-placed ships extend downwards from the origin coordinates, and horizontally-placed ships extend to the right.
+
+Unlike the physical <em>Battleships</em>, I have added the ability to place ships diagonally as well. The player can add the letters DR or DL to place a ship diagonally right, or diagonally left. Like the vertical orientation, both diagonal orientations extend downwards. There is not a upwards diagonal option, currently.
 
 Generally speaking, all of the above is designed so that simple input generates a fully playable game in a split second.
 
@@ -95,9 +97,19 @@ An even harder mode is also possible - one in which, if the CPU hits the second 
 
 I also considered a nightmare mode in which the CPU's ships move after 2-3 rounds.
 
-### GUI
+### Hint system for bigger grids
+
+Since the 14x14 grid games can take a bit longer than I would like, I would like to add the option to turn on hints for them. What I had in mind was to have a message appear every couple of turns giving a non-specific location for a non-specific ship. The message would read something like, "You hear a loud machine noise in the vicinity of 1,1 to 4,4...".
+
+### GUI / sound effects
 
 While it is possible to create a sense of tension and excitement with text, it is easier to do this audiovisually. Moreover, terminal interfaces are very uninteresting to look at. The game is supposed to be fun and simple, and I think a nice GUI with graphics for the grid and the ships would increase the fun factor, and it needn't decrease the simplicity. In fact, sound and audio could make the game even more intuitive.
+
+### More orientations
+
+I would like to add left horizontal, up vertical, and up left and up right diagonal. I think this could possibly make the positioning a bit more intuitive. The player could do more from a single square, e.g. a cruiser at G5 could be oriented diagonally up and right to I3, not just diagonally down and left to E7. When diagonally down and left is the only option, the player has to place the cruiser on I3 to achieve the desired orientation. 
+
+On the other hand, the amount of shorthand that the player would have to learn would double. Rather than just H, V, DR, and DL, there would be HR, HL, VU, VD, DRU, DRD, DLU, and DLD. So, this might cancel out the added intuitiveness. 
 
 <hr>
 
