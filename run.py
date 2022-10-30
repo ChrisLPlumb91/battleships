@@ -110,9 +110,11 @@ def select_player_ships(grid):
 
     while True:
         print(f'\nYou will now be asked to place each one of your ships.\n')
-        print('For the first two ships, you must enter two numbers, separated by a space, to serve as x and y coordinates, e.g. 2 10')
-        print('For the remaining five ships, you must also enter either H, V, DR, or DL, for Horizontal, Vertical, Diagonal Right, and Diagonal Left, respectively, e.g. 2 10 V')
-        print(f'(Keep in mind that you have selected a {grid}x{grid} grid, which means that numbers greater than {grid} will not be accepted)\n')
+        print(f'For the first two ships, you must enter two numbers, separated by a space, to serve as x and y coordinates, e.g. 2 10\n')
+        print(f'For the remaining five ships, you must also enter either H, V, DR, or DL, for Horizontal, Vertical, Diagonal Right, and Diagonal Left, respectively, e.g. 2 10 V\n')
+        print('Two things to keep in mind:')
+        print(f'1. You have selected a {grid}x{grid} grid, which means that numbers greater than {grid} will not be accepted')
+        print(f"2. The letters you must provide for each ship's orientation are not case-sensitive.\n\n")
 
         while True:
             x = 2
@@ -424,8 +426,8 @@ def select_cpu_ships(grid, player_ships):
             other_coordinates_string = []
 
             while random_coordinate_1 == 0 or random_coordinate_2 == 0:
-                random_coordinate_1 = random.randrange(grid)
-                random_coordinate_2 = random.randrange(grid)
+                random_coordinate_1 = random.randrange(grid + 1)
+                random_coordinate_2 = random.randrange(grid + 1)
 
             if x <= 1:
                 sub_coordinates_string.append(str(random_coordinate_1)) 
@@ -435,11 +437,12 @@ def select_cpu_ships(grid, player_ships):
             else:
                 other_coordinates_string.append(str(random_coordinate_1)) 
                 other_coordinates_string.append(str(random_coordinate_2))
-                other_coordinates_string.append(random.choice(['H','V','DL','DR']))
+                other_coordinates_string.append(random.choice(['H','V','DR','DL']))
                 cpu_ships[cpu_ship] = other_coordinates_string
 
         if validate_cpu_ships(grid, cpu_ships):
             print(f"You sense that the CPU's ships have taken up position behind the colossal wall before you...\n")
+            print(cpu_ships)
             break
 
     return cpu_ships
@@ -482,21 +485,23 @@ def validate_cpu_ships(grid, cpu_ships):
         overlap = False
         out_of_bounds = False
 
-        for x, cpu_ship in enumerate(cpu_ships, start=0):
-            for ind, coordinates in enumerate(grid_dict_cpu, start=0):
-                if coordinates.split(' ') == cpu_ships[cpu_ship][0:2] and cpu_ships[cpu_ship][2] == 'H':
-                    if 'occupied' not in grid_dict_cpu[coordinates]:
-                        grid_dict_cpu[coordinates] = f'occupied by {cpu_ship}'
+        for x, cpu_ship in enumerate(cpu_ships, start=0):  # 7 loops; one for each ship
+            for ind, coordinates in enumerate(grid_dict_cpu, start=0):  # iterates through 1 1 to 10 10 / 12 12 / 14 14
+                if coordinates.split(' ') == cpu_ships[cpu_ship][0:2] and cpu_ships[cpu_ship][2] == 'H': # if e.g. 1 1 made into ['1','1'] matches the the first 2 elements of the list value in the key represnted by cpu_ship, and the 3rd index of that list contains H
+                    if 'occupied' not in grid_dict_cpu[coordinates]:  # then check if that coordinate, e.g. 1 1 is occupied
+                        grid_dict_cpu[coordinates] = f'occupied by {cpu_ship}'  # then occupy that coordinate with the current ship in cpu_ship
                     else:
-                        overlap = True
-                    for z in range(1, SHIP_SIZES[x]):
-                        if grid_keys[ind + z].split(' ')[1] == coordinates.split(' ')[1]:
-                            if 'occupied' not in grid_dict_cpu[grid_keys[ind + z]]:
-                                grid_dict_cpu[grid_keys[ind + z]] = f'occupied by {cpu_ship}'
+                        overlap = True  # if the coordinate is already occupied, set the overlap flag to True.
+                    
+                    for z in range(1, SHIP_SIZES[x]):  # for loop to occupy the correct squares according to the current ship's length.
+                        if keys_dict.get(ind + z):  # ind + z should represent the next square. ind represents the current coordinate from grid_dict, while z represents the current part of the ship.
+                            if grid_keys[ind + z].split(' ')[1] == coordinates.split(' ')[1]:  # This makes sure that the ship doesn't move on to the next row. The y coordinate should be the same.
+                                if 'occupied' not in grid_dict_cpu[grid_keys[ind + z]]:  # checks if the next square is already occupied.
+                                    grid_dict_cpu[grid_keys[ind + z]] = f'occupied by {cpu_ship}'
+                                else:
+                                    overlap = True
                             else:
-                                overlap = True
-                        else:
-                            out_of_bounds = True
+                                out_of_bounds = True
                 elif coordinates.split(' ') == cpu_ships[cpu_ship][0:2] and cpu_ships[cpu_ship][2] == 'V':
                     if 'occupied' not in grid_dict_cpu[coordinates]:
                         grid_dict_cpu[coordinates] = f'occupied by {cpu_ship}'
@@ -515,15 +520,20 @@ def validate_cpu_ships(grid, cpu_ships):
                         grid_dict_cpu[coordinates] = f'occupied by {cpu_ship}'
                     else:
                         overlap = True
+                    
                     for z in range(1, SHIP_SIZES[x]):
                         if keys_dict.get(ind + grid * z + z):
                             keys_dict_coord_list = keys_dict[ind + grid * z + z].split(' ')
-                            if int(keys_dict_coord_list[1]) == int(cpu_ships[cpu_ship][1]) + (z + 1) or int(keys_dict_coord_list[1]) + 1 > grid or int(keys_dict_coord_list[0]) + 1 > grid:
+                            if (int(keys_dict_coord_list[1]) == int(cpu_ships[cpu_ship][1]) + (z + 1)
+                                    or int(keys_dict_coord_list[1]) + 1 > grid
+                                    or int(keys_dict_coord_list[0]) + 1 > grid):
                                 out_of_bounds = True
                             if 'occupied' not in grid_dict_cpu[grid_keys[ind + grid * z + z]]:
                                 grid_dict_cpu[grid_keys[ind + grid * z + z]] = f'occupied by {cpu_ship}'
                             else:
                                 overlap = True
+                        else:
+                            out_of_bounds = True
                 elif coordinates.split(' ') == cpu_ships[cpu_ship][0:2] and cpu_ships[cpu_ship][2] == 'DL':
                     if 'occupied' not in grid_dict_cpu[coordinates]:
                         grid_dict_cpu[coordinates] = f'occupied by {cpu_ship}'
@@ -532,13 +542,14 @@ def validate_cpu_ships(grid, cpu_ships):
                     for z in range(1, SHIP_SIZES[x]):
                         if keys_dict.get(ind + grid * z - z): 
                             keys_dict_coord_list = keys_dict[ind + grid * z - z].split(' ')
-                            if int(keys_dict_coord_list[1]) == int(cpu_ships[cpu_ship][1]) + (z - 1) or int(keys_dict_coord_list[1]) + 1 > grid:
+                            if (int(keys_dict_coord_list[1]) == int(cpu_ships[cpu_ship][1]) + (z - 1) or int(keys_dict_coord_list[1]) + 1 > grid):
                                 out_of_bounds = True
                             elif 'occupied' not in grid_dict_cpu[grid_keys[ind + grid * z - z]]:
                                 grid_dict_cpu[grid_keys[ind + grid * z - z]] = f'occupied by {cpu_ship}'
                             else:
                                 overlap = True
-
+                        else:
+                            out_of_bounds = True
                 elif coordinates.split(' ') == cpu_ships[cpu_ship][0:2]:
                     if 'occupied' not in grid_dict_cpu[coordinates]:
                         grid_dict_cpu[coordinates] = f'occupied by {cpu_ship}'
@@ -546,7 +557,6 @@ def validate_cpu_ships(grid, cpu_ships):
                         overlap = True
 
         if same_square == False and overlap == False and out_of_bounds == False:
-            print(grid_dict_cpu)
             break
         else:
             return False
@@ -687,9 +697,6 @@ def start_game(grid, player_ships, cpu_ships):
     elif player_hits >=18:
         print('The CPU has scuppered your entire fleet! You lose!')
 
-    player_grid.clear()
-    cpu_grid.clear()
-            
 
 def validate_guess(player_guess, grid):
     """
@@ -730,6 +737,9 @@ def main():
     the user is asked if they would like to play again. If they do, the game restarts 
     from the beginning, and if they do not, execution stops.
     """
+    player_grid = SHEET.worksheet('player')
+    cpu_grid = SHEET.worksheet('cpu')
+    
     continue_game = 'Y'
     
     while continue_game == 'Y':
@@ -737,6 +747,9 @@ def main():
         global grid_dict_cpu
     
         grid = set_grid_size()
+
+        player_grid.clear()
+        cpu_grid.clear()
 
         grid_dict_player = {f'{x} {y}': 'empty' for y in range(1, grid + 1) for x in range(1, grid + 1)}
         player_ships = select_player_ships(grid)
@@ -754,6 +767,8 @@ def main():
                 print('')
                 break
             elif continue_game == 'N':
+                player_grid.clear()
+                cpu_grid.clear()
                 print(f'\nThanks for playing!\n')
                 break
             else:
