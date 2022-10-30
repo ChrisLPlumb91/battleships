@@ -113,8 +113,8 @@ def select_player_ships(grid):
         print(f'For the first two ships, you must enter two numbers, separated by a space, to serve as x and y coordinates, e.g. 2 10\n')
         print(f'For the remaining five ships, you must also enter either H, V, DR, or DL, for Horizontal, Vertical, Diagonal Right, and Diagonal Left, respectively, e.g. 2 10 V\n')
         print('Two things to keep in mind:')
-        print(f'1. You have selected a {grid}x{grid} grid, which means that numbers greater than {grid} will not be accepted')
-        print(f"2. The letters you must provide for each ship's orientation are not case-sensitive.\n\n")
+        print(f'1. You have selected a {grid}x{grid} grid, which means that numbers greater than {grid} will not be accepted.')
+        print(f"2. The letters you must provide for the last 5 ships' orientations are not case-sensitive.\n\n")
 
         while True:
             x = 2
@@ -200,7 +200,7 @@ def validate_ship(grid, sub_or_ship, coordinate_list, ship_name):
             raise ValueError(f'\nYou entered {len(coordinate_list)} numbers / characters where 3 were required.')
 
         if sub_or_ship == 3 and coordinate_list[2] != 'H' and coordinate_list[2] != 'V' and coordinate_list[2] != 'DL' and coordinate_list[2] != 'DR':
-            raise ValueError(f'\nYou did not provide a valid horizontal or vertical value (H, V, DR, or DL) for the {ship_name} that you placed.')
+            raise ValueError(f'\nYou did not provide a valid orientation value (H, V, DR, or DL) for the {ship_name} that you placed.')
 
         if int(coordinate_list[0]) <= 0 or int(coordinate_list[1]) <= 0:
             raise ValueError(f"\nYou entered a coordinate that doesn't exist on the grid.")
@@ -442,7 +442,6 @@ def select_cpu_ships(grid, player_ships):
 
         if validate_cpu_ships(grid, cpu_ships):
             print(f"You sense that the CPU's ships have taken up position behind the colossal wall before you...\n")
-            print(cpu_ships)
             break
 
     return cpu_ships
@@ -485,18 +484,18 @@ def validate_cpu_ships(grid, cpu_ships):
         overlap = False
         out_of_bounds = False
 
-        for x, cpu_ship in enumerate(cpu_ships, start=0):  # 7 loops; one for each ship
-            for ind, coordinates in enumerate(grid_dict_cpu, start=0):  # iterates through 1 1 to 10 10 / 12 12 / 14 14
-                if coordinates.split(' ') == cpu_ships[cpu_ship][0:2] and cpu_ships[cpu_ship][2] == 'H': # if e.g. 1 1 made into ['1','1'] matches the the first 2 elements of the list value in the key represnted by cpu_ship, and the 3rd index of that list contains H
-                    if 'occupied' not in grid_dict_cpu[coordinates]:  # then check if that coordinate, e.g. 1 1 is occupied
-                        grid_dict_cpu[coordinates] = f'occupied by {cpu_ship}'  # then occupy that coordinate with the current ship in cpu_ship
+        for x, cpu_ship in enumerate(cpu_ships, start=0):
+            for ind, coordinates in enumerate(grid_dict_cpu, start=0):
+                if coordinates.split(' ') == cpu_ships[cpu_ship][0:2] and cpu_ships[cpu_ship][2] == 'H':
+                    if 'occupied' not in grid_dict_cpu[coordinates]:
+                        grid_dict_cpu[coordinates] = f'occupied by {cpu_ship}'
                     else:
-                        overlap = True  # if the coordinate is already occupied, set the overlap flag to True.
+                        overlap = True
                     
-                    for z in range(1, SHIP_SIZES[x]):  # for loop to occupy the correct squares according to the current ship's length.
-                        if keys_dict.get(ind + z):  # ind + z should represent the next square. ind represents the current coordinate from grid_dict, while z represents the current part of the ship.
-                            if grid_keys[ind + z].split(' ')[1] == coordinates.split(' ')[1]:  # This makes sure that the ship doesn't move on to the next row. The y coordinate should be the same.
-                                if 'occupied' not in grid_dict_cpu[grid_keys[ind + z]]:  # checks if the next square is already occupied.
+                    for z in range(1, SHIP_SIZES[x]):
+                        if keys_dict.get(ind + z): 
+                            if grid_keys[ind + z].split(' ')[1] == coordinates.split(' ')[1]:
+                                if 'occupied' not in grid_dict_cpu[grid_keys[ind + z]]:
                                     grid_dict_cpu[grid_keys[ind + z]] = f'occupied by {cpu_ship}'
                                 else:
                                     overlap = True
@@ -710,13 +709,13 @@ def validate_guess(player_guess, grid):
     
     try:
         if not player_guess_dict.get(1):
-            raise ValueError('Either you entered only a single character, or you did not put a space between the characters.')
+            raise ValueError('Either you entered nothing, or only a single character, or you did not put a space between the characters.')
+        elif not player_guess[0].isnumeric() or not player_guess[1].isnumeric():
+            raise ValueError('The coordinates you provided contained an alphabetic character, a punctuation mark, or a space, where a number was expected.')
+        elif player_guess[0].isalpha() or player_guess[1].isalpha():
+            raise ValueError('The coordinates you provided contained an alphabetic character, a punctuation mark, or a space, where a number was expected.')
         elif len(player_guess) > 2:
             raise ValueError(f'You entered {len(player_guess)} numbers / characters. Only 2 are required.')
-        elif not player_guess[0].isnumeric() or not player_guess[1].isnumeric():
-            raise ValueError('The coordinates you provided contained an alphabetic character where a number was expected.')
-        elif player_guess[0].isalpha() or player_guess[1].isalpha():
-            raise ValueError('The coordinates you provided contained an alphabetic character where a number was expected.')
         elif int(player_guess[0]) > grid or int(player_guess[1]) > grid:
             raise ValueError(f'The coordinates you provided lie outside of the {grid}x{grid} grid.')       
         elif int(player_guess[0]) <= 0 or int(player_guess[1]) <= 0:
