@@ -83,6 +83,10 @@ Also, at the beginning of the game, there is an opportunity for the player to qu
 
 ### Features yet to be implemented
 
+### Different spreadsheets for different instances of the program
+
+The program would certainly fall apart if two or more people tried to run it at the same time, as they would all be accessing and modifying the same spreadsheet. I could have solved this using UUID and the method of gspread that creates a spreadsheet, but I wasn't quite sure how to do this 
+
 ### 2 player mode
 
 If I were able to write network code, I would like to add a 2-player mode to the program. It would be selectable from a menu at the beginning, and would again use the spreadsheets. However, each player would have a different copy or instance of the spreadsheet to prevent them from seeing the positions of one another's ships. Other than this, the spreadsheets would behave in the same way as in the CPU mode - with hits dealt to the opponent gradually populating the 'opponent' spreadsheet, and hits dealt to the player inserting Xs into the 'player spreadsheet.
