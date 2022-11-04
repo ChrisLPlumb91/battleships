@@ -147,7 +147,7 @@ I checked both of the above for both the player and the CPU, and thankfully, no 
 <strong><h2>Spreadsheet interaction</h2></strong>
 <hr>
 
-The program interacts with 2 different sheets within a Google Sheet - the 'player' and 'cpu' sheets. The 'player' sheet is populated with the player's ships before the game begins, and the CPU's ships are gradually revealed on the 'cpu' as the player successfully lands hits.
+The program interacts with 2 different sheets within a Google Sheet - the player's sheet and the CPU's sheet. The player's sheet is populated with the player's ships before the game begins, and the CPU's ships are gradually revealed on the CPU's sheet as the player successfully lands hits.
 
 To test this functionality, I did a number of things:
 <ul>
@@ -157,4 +157,4 @@ To test this functionality, I did a number of things:
 
 For both the vertical and horizontal ships, no issues arose, but due to logical errors in the algorithms I wrote for the two diagonal orientations, diagonal ships placed at the edges of the grid would either 1. simply cut short at the bottom edge, or 2. move to the far side of the next row down, and continue from there (e.g. one half would be on the far right edge of the grid, and another half would be on the far left).
 
-These issues plagued both the player and user spreadsheets, in fact, despite the fact that the code for populating them is quite different. However, I managed to resolve the issue for both by essentially telling the program to treat any ships that exhibit this behaviour as being out of bounds.
+These issues plagued both the player and CPU spreadsheets, in fact, despite the fact that the code for populating them is quite different. However, I managed to resolve the issue for both by essentially telling the program to treat any ships that exhibit this behaviour as being out of bounds.

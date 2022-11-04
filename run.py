@@ -1,5 +1,14 @@
 import random
+import time
+import uuid
 import gspread
+from gspread_formatting import CellFormat
+from gspread_formatting import format_cell_range
+from gspread_formatting import Color
+from gspread_formatting import set_column_width
+from gspread_formatting import set_row_height
+from gspread_formatting import Border
+from gspread_formatting import Borders
 from google.oauth2.service_account import Credentials
 
 SCOPE = [
@@ -98,6 +107,54 @@ def validate_grid(grid):
     return True
 
 
+def generate_sheet(grid, sheet_id):
+    """
+    This function is used to create and format both the player
+    and CPU spreadsheets. To ensure that players aren't working
+    from the same sheet, a UUID is used to create a unique
+    one for each of them.
+    """
+    sheet = SHEET.add_worksheet(sheet_id, grid, grid)
+
+    formatting_all = CellFormat(
+                backgroundColor=Color(0.78, 0.85, 0.97),
+                horizontalAlignment='CENTER',
+                verticalAlignment='MIDDLE',
+                borders=Borders(bottom=Border('SOLID'),
+                                top=Border('SOLID'),
+                                left=Border('SOLID'),
+                                right=Border('SOLID')))
+
+    formatting_top = (CellFormat(borders=Borders
+                      (top=Border('SOLID_MEDIUM'))))
+    formatting_bottom = (CellFormat(borders=Borders
+                         (bottom=Border('SOLID_MEDIUM'))))
+    formatting_left = (CellFormat(borders=Borders
+                       (left=Border('SOLID_MEDIUM'))))
+    formatting_right = (CellFormat(borders=Borders
+                        (right=Border('SOLID_MEDIUM'))))
+
+    column_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G',
+                      'H', 'I', 'J', 'K', 'L', 'M', 'N']
+
+    for row in range(grid):
+        row = row + 1
+        format_cell_range(sheet, f'{row}', formatting_all)
+        set_row_height(sheet, str(row), 42)
+        set_column_width(sheet, column_letters[row - 1], 42)
+
+        if row == 1:
+            format_cell_range(sheet, f'{row}', formatting_top)
+            format_cell_range(sheet, column_letters[row - 1],
+                              formatting_left)
+        elif row == grid:
+            format_cell_range(sheet, f'{row}', formatting_bottom)
+            format_cell_range(sheet, column_letters[grid - 1],
+                              formatting_right)
+
+    return sheet
+
+
 def select_player_ships(grid):
     """
     This function prompts the user to enter coordinates for each of their
@@ -123,7 +180,7 @@ def select_player_ships(grid):
               ' and Diagonal Left, respectively, e.g. 2 10 V\n')
         print('Two things to keep in mind:')
         print(f'1. You have selected a {grid}x{grid} grid, which means' +
-              ' that numbers greater than {grid} will not be accepted.')
+              f' that numbers greater than {grid} will not be accepted.')
         print("2. The letters you must provide for the last 5 ships'" +
               " orientations are not case-sensitive.\n\n")
 
@@ -456,7 +513,7 @@ def validate_all_ships(grid, player_ships):
     return True
 
 
-def place_player_ships(grid):
+def place_player_ships(grid, player_id):
     """
     This function is responsible for actually inserting the user's ships
     into the spreadsheet. Depending on the ship, a different initial
@@ -468,8 +525,8 @@ def place_player_ships(grid):
     and which ship that ship should be, is determined from the dictionary
     of coordinates and ships created previously.
     """
-    player_grid = SHEET.worksheet('player')
-    player_grid.clear()
+    player_grid = SHEET.worksheet(player_id)
+    # player_grid.clear()
 
     global grid_dict_player
 
@@ -552,7 +609,7 @@ def place_player_ships(grid):
         elif grid == 12 and x == 0 or grid == 14 and x == 0:
             player_grid.append_row(row_list)
 
-    print('Your spreadsheet has been populated ' +
+    print('\nYour spreadsheet has been populated ' +
           'with your ships! Take a look!.\n')
 
 
@@ -572,9 +629,6 @@ def select_cpu_ships(grid, player_ships):
     cpu_ship_names = list(player_ships.keys())
 
     global grid_dict_cpu
-
-    cpu_grid = SHEET.worksheet('cpu')
-    cpu_grid.clear()
 
     while True:
         for x, cpu_ship in enumerate(cpu_ship_names, start=0):
@@ -620,6 +674,7 @@ def validate_cpu_ships(grid, cpu_ships):
     for the CPU.
     """
     global grid_dict_cpu
+
     cpu_ships_coordinates = list(cpu_ships.values())
 
     while True:
@@ -762,7 +817,7 @@ def validate_cpu_ships(grid, cpu_ships):
     return True
 
 
-def start_game(grid, player_ships, cpu_ships):
+def start_game(grid, player_ships, cpu_ships, player_id, cpu_id):
     """
     This function contains code for the playable part of the program.
     It prompts the user to input numbers as coordinates,
@@ -780,8 +835,8 @@ def start_game(grid, player_ships, cpu_ships):
     """
     print('\nMan the poop deck! War has returned to the high seas!\n')
 
-    player_grid = SHEET.worksheet('player')
-    cpu_grid = SHEET.worksheet('cpu')
+    player_grid = SHEET.worksheet(player_id)
+    cpu_grid = SHEET.worksheet(cpu_id)
 
     global grid_dict_player
     global grid_dict_cpu
@@ -951,9 +1006,6 @@ def main():
     like to play again. If they do, the game restarts from the beginning,
     and if they do not, execution stops.
     """
-    player_grid = SHEET.worksheet('player')
-    cpu_grid = SHEET.worksheet('cpu')
-
     continue_game = 'Y'
 
     while continue_game == 'Y':
@@ -961,33 +1013,52 @@ def main():
         global grid_dict_cpu
 
         grid = set_grid_size()
+        print('Please wait while your grid is generated...\n')
 
-        player_grid.clear()
-        cpu_grid.clear()
+        player_grid_id = 'player-' + str(uuid.uuid4())
+        player_sheet = generate_sheet(grid, player_grid_id)
+
+        print('Your grid has been generated! Have a look ' +
+              'at the spreadsheet!\n')
 
         grid_dict_player = ({f'{x} {y}': 'empty'
                             for y in range(1, grid + 1)
                             for x in range(1, grid + 1)})
         player_ships = select_player_ships(grid)
-        place_player_ships(grid)
+        place_player_ships(grid, player_grid_id)
+
+        print('\nAnnoyingly, there is a limit to the number ' +
+              'of write operations that can be made to a Google ' +
+              'Sheet in a minute...\n')
+        print('Therefore, before it can generate the CPU grid, ' +
+              'this program must pause for 60 seconds.\n')
+        print("Use this time to plan your strategy!\n")
+        time.sleep(60)
+
+        print('Thanks for waiting! Now generating CPU grid...\n\n')
+
+        cpu_grid_id = 'cpu-' + str(uuid.uuid4())
+        cpu_sheet = generate_sheet(grid, cpu_grid_id)
 
         grid_dict_cpu = ({f'{x} {y}': 'empty'
                          for y in range(1, grid + 1)
                          for x in range(1, grid + 1)})
         cpu_ships = select_cpu_ships(grid, player_ships)
 
-        start_game(grid, player_ships, cpu_ships)
+        start_game(grid, player_ships, cpu_ships, player_grid_id, cpu_grid_id)
 
         while True:
             continue_game = input('Would you like to play again? ' +
                                   '(enter Y or N):\n').upper()
 
             if continue_game == 'Y':
+                SHEET.del_worksheet(player_sheet)
+                SHEET.del_worksheet(cpu_sheet)
                 print('')
                 break
             elif continue_game == 'N':
-                player_grid.clear()
-                cpu_grid.clear()
+                SHEET.del_worksheet(player_sheet)
+                SHEET.del_worksheet(cpu_sheet)
                 print('\nThanks for playing!\n')
                 break
             else:

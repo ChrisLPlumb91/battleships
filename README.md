@@ -37,6 +37,8 @@ be prevented.
 
 <img src="assets/images/grid-selection-screenshot.png" alt="A screenshot of the player selecting a grid size.">
 
+Once the grid size is selected, a sheet is created in the Google Sheet file with these same dimensions. It is given a unique ID when it is created so that concurrent users will not be reading from and writing to the same sheet.
+
 ### Ship positioning
 
 Once the player has chosen a grid size, they must position each of their ships. Again, to keep things simple, and because the ships in <em>Battleships</em> are traditionally of fixed size and shape, the player is only asked to provide a single pair of x and y coordinates. These coordinates serve as the origin point of each ship.
@@ -49,15 +51,17 @@ Unlike the physical <em>Battleships</em>, I have added the ability to place ship
 
 Generally speaking, all of the above is designed so that simple input generates a fully playable game in a split second.
 
-
-
 ### CPU battle
 
-After the player has made their choices, The 'player' sheet in said spreadsheet is fully populated with the player's ships according to how they chose to place them at the beginning (The CPU does the same, but their spreadsheet is not populated, for obvious reasons). 
+After the player has made their choices, The player's sheet is fully populated with the player's ships according to how they chose to place them at the beginning. 
 
 <img src="assets/images/player-grid-spreadsheet-screenshot.png" alt="A screenshot of the player's spreadsheet after they have positioned their ships.">
 
-Then, the game itself begins. During this phase, the player is prompted to enter 2 numbers to serve as coordinates on the CPU's grid. If the player lands a hit on one of the CPU's ships, the first letter of that ship's name appears on the 'cpu' sheet of a spreadsheet linked to the game. This way, the player can get a sense of where next to target at a glance.
+Unfortunately, there is a timer that must elapse before the CPU's sheet is created and populated. This is a limitation of Google Sheets imposed by Google itself. There is a limit to how many write operations can be made to a Google Sheet via a program / API in a minute. If this time-out was not used, the program would crash. Two sheets are created, and all of their cells are formatted in several ways, which involves a large number of write operations in a short space of time.
+
+However, once a minute elapses, the CPU sheet is created. However, it is not populated with ships, for obvious reasons. Like the player's sheet, the CPU's sheet is unique.
+
+Then, the game itself begins. During this phase, the player is prompted to enter 2 numbers to serve as coordinates on the CPU's grid. If the player lands a hit on one of the CPU's ships, the first letter of that ship's name appears on the cpu sheet. This way, the player can get a sense of where next to target at a glance.
 
 <img src="assets/images/player-lands-hit-screenshot.png" alt="A screenshot of the player landing a hit in the terminal.">
 
@@ -109,6 +113,8 @@ Since the 14x14 grid games can take a bit longer than I would like, I would like
 
 While it is possible to create a sense of tension and excitement with text, it is easier to do this audiovisually. Moreover, terminal interfaces are very uninteresting to look at. The game is supposed to be fun and simple, and I think a nice GUI with graphics for the grid and the ships would increase the fun factor, and it needn't decrease the simplicity. In fact, sound and audio could make the game even more intuitive.
 
+Also, the aforementioned limitation on write operations via API would not be an issue if the game had its own dedicated GUI.
+
 ### More orientations
 
 I would like to add left horizontal, up vertical, and up left and up right diagonal. I think this could possibly make the positioning a bit more intuitive. The player could do more from a single square, e.g. a cruiser at G5 could be oriented diagonally up and right to I3, not just diagonally down and left to E7. When diagonally down and left is the only option, the player has to place the cruiser on I3 to achieve the desired orientation. 
@@ -149,3 +155,4 @@ The process followed in order to deploy this project to Heroku was as follows:
 ## Credits
 
 gspread (a Python API for Google Sheets): https://docs.gspread.org/en/v5.6.1/
+gspread_formatting (by robin900): https://github.com/robin900/gspread-formatting
